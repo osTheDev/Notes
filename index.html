@@ -1,179 +1,119 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pocket Docs</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
-<meta name="theme-color" content="#4a3022">
-<style>
-:root{--bg:#ece5db;--fg:#2a1f17;--mut:#7a6858;--card:#f8f4ee;--ac:#5a3d2b;--st:#cbbba8;--th:#e3d8c9;--hd:#4a3022;--hf:#f3ece2;--warn:#9c2f1f;--soon:#8a5a00}
-@media(prefers-color-scheme:dark){:root{--bg:#1b1511;--fg:#eadfd2;--mut:#a69584;--card:#251d17;--ac:#d0a578;--st:#4a3b2e;--th:#33281f;--hd:#34261c;--hf:#eadfd2;--warn:#ff8f7f;--soon:#f0b350}}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
-body{padding:0 12px calc(70px + env(safe-area-inset-bottom))}
-h1{margin:0 -12px 14px;padding:calc(16px + env(safe-area-inset-top)) 16px 14px;background:var(--hd);color:var(--hf);font:600 24px/1.2 Georgia,serif;letter-spacing:.3px;display:flex;justify-content:space-between;align-items:center}
-input,select,textarea{width:100%;font:inherit;color:inherit;background:var(--card);border:1px solid var(--st);border-radius:2px;padding:10px;margin:0 0 12px}
-input:focus,textarea:focus,select:focus,#body:focus{outline:2px solid var(--ac);outline-offset:-1px}
-label{display:block;font:600 13px Georgia,serif;color:var(--ac);margin-bottom:4px}
-.card{background:var(--card);border:1px solid var(--st);border-left:4px solid var(--ac);padding:12px 14px;margin-bottom:10px}
-.card b{display:block;font:600 17px Georgia,serif}
-.card small,.card p{display:block;color:var(--mut);margin:2px 0 0;font-size:14px}
-.b{float:right;font-size:13px;color:var(--mut)}.w{color:var(--warn);font-weight:700}.s{color:var(--soon);font-weight:700}
-.empty{color:var(--mut);text-align:center;margin-top:40px}
-.fab{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom));width:56px;height:56px;border:0;border-radius:2px;background:var(--hd);color:var(--hf);font-size:30px}
-#tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--st);padding-bottom:env(safe-area-inset-bottom)}
-#tabs button{flex:1;padding:16px;border:0;background:none;color:var(--mut);font:600 15px Georgia,serif}
-#tabs button.on{color:var(--ac);box-shadow:inset 0 3px 0 var(--ac)}
-.tb{display:flex;justify-content:space-between;margin:0 -12px 10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;background:var(--hd)}
-.tb button,.btn{min-width:44px;padding:10px 14px;border:1px solid var(--st);border-radius:2px;background:var(--card);color:var(--fg);font:inherit}
-.tb button{background:none;border-color:rgba(255,255,255,.3);color:var(--hf)}
-.tb .del{color:#ffb4a8}.btn.del{color:var(--warn)}
-.fmt{display:flex;gap:4px;overflow-x:auto;position:sticky;top:0;z-index:2;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--st);margin-bottom:10px}
-.fmt button{flex:none;min-width:40px;padding:8px;border:1px solid var(--st);border-radius:2px;background:var(--card);color:var(--fg);font:inherit}
-.g{flex:none;width:1px;background:var(--st);margin:0 4px}
-#title{font:600 22px Georgia,serif}
-#body{min-height:50vh;background:var(--card);border:1px solid var(--st);border-radius:2px;padding:14px;line-height:1.6;outline:0}
-#body h2{font:600 20px Georgia,serif;color:var(--ac);margin:.6em 0 .2em}
-#body hr{border:0;border-top:1px solid var(--st);margin:12px 0}
-#body input[type=checkbox]{width:18px;height:18px;padding:0;margin:0 6px 0 0;display:inline-block;vertical-align:-3px;accent-color:var(--ac)}
-#body table{border-collapse:collapse;width:100%;table-layout:fixed;margin:8px 0}
-#body td,#body th{border:1px solid var(--st);padding:6px;word-break:break-word;vertical-align:top}
-#body th{background:var(--th);text-align:left}
-.sec{display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--st);font:600 14px Georgia,serif;color:var(--ac)}
-.sec .btn{padding:6px 12px;font:600 13px system-ui,sans-serif}
-.sec+.empty{margin:12px 0}
-.tag{display:inline-block;border:1px solid var(--st);padding:0 6px;margin:6px 4px 0 0;font:12px/1.6 system-ui,sans-serif;font-style:normal;color:var(--mut)}
-.fh{border-left:6px solid;padding:2px 0 2px 12px;margin-bottom:16px}
-.ft{font:600 22px Georgia,serif;margin:0}
-.cols{display:flex;gap:10px;margin-bottom:16px}
-.cb{width:40px;height:40px;border:2px solid transparent;border-radius:2px}
-.cb.on{border-color:var(--fg);box-shadow:inset 0 0 0 2px var(--card)}
-.dots{min-width:40px;height:36px;padding:0;border:1px solid rgba(255,255,255,.3);border-radius:2px;background:none;color:var(--hf);font:20px/1 system-ui,sans-serif}
-.dots.txt{padding:0 12px;font:600 14px system-ui,sans-serif}
-.scrim{position:fixed;inset:0;z-index:9}
-.menu{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 64px);z-index:10;min-width:230px;background:var(--card);border:1px solid var(--st);box-shadow:0 6px 18px rgba(0,0,0,.3)}
-.menu .h{padding:8px 14px;background:var(--bg);font:600 12px Georgia,serif;color:var(--ac)}
-.menu button{display:block;width:100%;text-align:left;padding:13px 14px;background:none;border:0;border-bottom:1px solid var(--st);color:var(--fg);font:inherit}
-.menu button.del{color:var(--warn)}
-.ck{float:left;margin:2px 12px 0 0;font-size:24px;line-height:1;color:var(--ac)}
-.card.on{background:var(--th)}
-.selbar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--st)}
-.selbar .btn{flex:1}
-</style></head><body>
-<div id="main"></div>
-<div id="tabs"><button data-v="notes" onclick="go('notes')">Notes</button><button data-v="recs" onclick="go('recs')">Records</button></div>
-<script>
-const $=s=>document.querySelector(s);
-let db={notes:[],recs:[]},view='notes',cur=null,q='';
-try{db=JSON.parse(localStorage.getItem('pd1'))||db}catch(e){}
-db.folders=db.folders||[];
-const save=()=>{try{localStorage.setItem('pd1',JSON.stringify(db))}catch(e){alert('Could not save. Storage may be full.')}};
-const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-const strip=h=>{const d=document.createElement('div');d.innerHTML=h;return d.textContent};
-const days=d=>d?Math.round((new Date(d+'T00:00')-new Date().setHours(0,0,0,0))/864e5):null;
-const go=v=>{view=v;menu=false;sel=null;render()};
-function render(){
- const m=$('#main'),list=(view==='notes'||view==='recs')&&!sel;
- $('#tabs').style.display=list?'flex':'none';
- document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
- if(view==='notes'){
-  const ql=q.toLowerCase();
-  const F=db.folders.filter(f=>!ql||(f.name+' '+(f.tags||[]).join(' ')).toLowerCase().includes(ql)).sort((SORTS[db.fs]||SORTS.az)[1]);
-  const L=db.notes.filter(n=>ql?(n.title+strip(n.html)).toLowerCase().includes(ql):!n.folder).sort((a,b)=>b.t-a.t);
-  const hd=sel?'<h1><span>'+sel.size+' selected</span><button class="dots txt" onclick="selOff()">Cancel</button></h1>':'<h1><span>Notes</span><button class="dots" aria-label="More options" onclick="toggleMenu()">&#8942;</button></h1>';
-  m.innerHTML=hd+(menu&&!sel?menuHtml():'')+'<input id="s" placeholder="Search notes and folders" value="'+esc(q)+'">'+
-   (sel?'':'<div class="sec"><span>Folders</span><button class="btn" onclick="newFolder()">New folder</button></div>'+
-   (F.map(f=>'<div class="card" style="border-left-color:'+f.color+'" onclick="openFolder(\''+f.id+'\')"><span class="b">'+cnt(f)+' notes</span><b>'+esc(f.name)+'</b>'+tags(f)+'</div>').join('')||'<p class="empty">No folders yet.</p>'))+
-   '<div class="sec"><span>'+(ql?'Matching notes':db.folders.length?'Unfiled notes':'Notes')+'</span></div>'+
-   (L.map(n=>sel?selCard(n):noteCard(n,ql)).join('')||'<p class="empty">No notes here. Tap + to write one.</p>')+
-   (sel?'<div class="selbar"><button class="btn" onclick="selAll()">Select all</button><button class="btn del" onclick="delSel()">Delete'+(sel.size?' ('+sel.size+')':'')+'</button></div>':'<button class="fab" onclick="newNote()">+</button>');
-  $('#s').oninput=e=>{q=e.target.value;render();const s=$('#s');s.focus();s.setSelectionRange(1e3,1e3)};
- }else if(view==='folder'){
-  const L=db.notes.filter(n=>n.folder===curF.id).sort((a,b)=>b.t-a.t);
-  m.innerHTML='<div class="tb"><button onclick="back()">Back</button><button onclick="editFolder()">Edit folder</button></div><div class="fh" style="border-left-color:'+curF.color+'"><h2 class="ft">'+esc(curF.name)+'</h2>'+tags(curF)+'</div>'+
-   (L.map(n=>noteCard(n,0,curF.color)).join('')||'<p class="empty">This folder is empty. Tap + to add a note.</p>')+'<button class="fab" onclick="newNote()">+</button>';
- }else if(view==='fedit'){
-  m.innerHTML='<div class="tb"><button onclick="back()">Back</button><button class="del" onclick="delFolder()">Delete</button></div>'+
-   '<label>Folder name</label><input id="fn" placeholder="Folder name" value="'+esc(curF.name)+'" oninput="curF.name=this.value;save()">'+
-   '<label>Color</label><div class="cols">'+FC.map(c=>'<button class="cb'+(c===curF.color?' on':'')+'" style="background:'+c+'" onclick="curF.color=\''+c+'\';save();render()"></button>').join('')+'</div>'+
-   '<label>Tags (separate with commas)</label><input placeholder="patterns, orders" value="'+esc((curF.tags||[]).join(', '))+'" oninput="curF.tags=this.value.split(\',\').map(t=>t.trim()).filter(Boolean);save()">';
- }else if(view==='recs'){
-  const L=db.recs.slice().sort((a,b)=>(a.exp||'9')>(b.exp||'9')?1:-1);
-  m.innerHTML='<h1>Records</h1>'+(L.map(r=>{const d=days(r.exp);
-   const b=d===null?'':d<0?'<span class="b w">Expired '+(-d)+'d ago</span>':d<=30?'<span class="b s">'+(d===0?'Expires today':'In '+d+' days')+'</span>':'<span class="b">'+r.exp+'</span>';
-   return '<div class="card" onclick="openRec(\''+r.id+'\')">'+b+'<b>'+esc(r.name||'Untitled')+'</b><small>'+esc(r.cat)+(r.val?', '+esc(r.val):'')+'</small></div>'}).join('')||'<p class="empty">Nothing saved yet. Tap + to add a car, asset, or document.</p>')+
-   '<div style="display:flex;gap:8px;margin-top:20px"><button class="btn" onclick="exp()">Export backup</button><button class="btn" onclick="$(\'#f\').click()">Import backup</button><input id="f" type="file" accept=".json" hidden onchange="imp(this.files[0])"></div><button class="fab" onclick="newRec()">+</button>';
- }else if(view==='edit'){
-  m.innerHTML='<div class="tb"><button onclick="back()">Back</button><button class="del" onclick="delNote()">Delete</button></div><div class="fmt" onmousedown="event.preventDefault()">'+FMT+'</div>'+
-   '<input id="title" placeholder="Title" value="'+esc(cur.title)+'" oninput="cur.title=this.value;sync()"><label>Folder</label><select onchange="cur.folder=this.value;save()"><option value="">No folder</option>'+db.folders.map(f=>'<option value="'+f.id+'"'+(f.id===cur.folder?' selected':'')+'>'+esc(f.name)+'</option>').join('')+'</select><div id="body" contenteditable="true" oninput="sync()" onchange="chk(event)">'+cur.html+'</div>';
- }else{
-  m.innerHTML='<div class="tb"><button onclick="back()">Back</button><button class="del" onclick="delRec()">Delete</button></div>'+
-   '<label>Name</label><input value="'+esc(cur.name)+'" oninput="cur.name=this.value;save()">'+
-   '<label>Type</label><select onchange="cur.cat=this.value;save()">'+['Vehicle','Asset','Document','Other'].map(c=>'<option'+(c===cur.cat?' selected':'')+'>'+c+'</option>').join('')+'</select>'+
-   '<label>Expires or due date</label><input type="date" value="'+esc(cur.exp)+'" oninput="cur.exp=this.value;save()">'+
-   '<label>Value or number (plate, serial, amount)</label><input value="'+esc(cur.val)+'" oninput="cur.val=this.value;save()">'+
-   '<label>Details</label><textarea rows="6" oninput="cur.notes=this.value;save()">'+esc(cur.notes)+'</textarea>';
+cd /mnt/user-data/outputs/pwa && python3 - <<'PYEOF'
+import re
+h=open('index.html').read()
+def rx(pat,new,fl=re.S):
+    global h
+    h,n=re.subn(pat,lambda m:new,h,count=1,flags=fl); assert n==1,pat[:60]
+def rp(old,new):
+    global h
+    assert old in h,old[:60]; h=h.replace(old,new,1)
+
+# --- storage ---
+rx(r"let db=\{notes:\[\],recs:\[\]\},view='notes',cur=null,q='';\ntry\{db=JSON.parse.*?\ndb\.folders=db\.folders\|\|\[\];\nconst save=.*?\n",r'''let db={notes:[],folders:[],inv:[]},view='notes',cur=null,q='';
+const norm=d=>{d.notes=d.notes||[];d.folders=d.folders||[];d.inv=d.inv||[];(d.recs||[]).forEach(r=>d.inv.push({id:r.id,name:r.name||'',cat:'dates',type:r.cat||'',qty:'',unit:'',cost:'',low:'',exp:r.exp||'',notes:[r.val?'Number or value: '+r.val:'',r.notes||''].filter(Boolean).join('\n')}));delete d.recs;return d};
+const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open('pocketdocs',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+const idbGet=async k=>{const d=await idb();return new Promise(ok=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ok()})};
+const idbSet=async(k,v)=>{const d=await idb();return new Promise((ok,no)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=ok;t.onerror=()=>no(t.error)})};
+let tm;const flush=()=>{clearTimeout(tm);return idbSet('db',db).catch(()=>say('Could not save. Storage may be full.'))};
+const save=()=>{clearTimeout(tm);tm=setTimeout(flush,300)};
+addEventListener('pagehide',flush);document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
+async function init(){try{const d=await idbGet('db');if(d)db=d;else{const o=JSON.parse(localStorage.getItem('pd1')||'null');if(o)db=o}}catch(e){}db=norm(db);await flush();render();try{navigator.storage.persist()}catch(e){}}
+''')
+rp("\nrender();\nif(\"serviceWorker\"","\ninit();\nif(\"serviceWorker\"")
+
+# --- tabs / nav ---
+rp('<button data-v="recs" onclick="go(\'recs\')">Records</button>','<button data-v="inv" onclick="go(\'inv\')">Inventory</button>')
+rp("(view==='notes'||view==='recs')&&!sel","(view==='notes'||view==='inv')&&!sel")
+rp("const go=v=>{view=v;menu=false;sel=null;render()}","const go=v=>{view=v;menu=false;sel=null;ic=null;it=null;iq='';flt='';render()}")
+
+# --- inventory view ---
+inv=r'''}else if(view==='inv'){
+  const ql=iq.toLowerCase(),A=db.inv.filter(attn).length,byN=(a,b)=>(a.name||'').localeCompare(b.name||'');
+  const path=x=>esc(catOf(x.cat)[1]+' > '+tn(x));
+  let head,body;
+  if(ql||flt){
+   const L=db.inv.filter(x=>(!ql||(x.name+' '+x.type+' '+x.notes+' '+catOf(x.cat)[1]).toLowerCase().includes(ql))&&(!flt||attn(x))).sort(byN);
+   head='<h1>Inventory</h1>';
+   body=(flt?'<div class="sec"><span>Needs attention</span><button class="btn" onclick="flt=\'\';render()">Show all</button></div>':'')+(L.map(x=>itemCard(x,path(x))).join('')||'<p class="empty">Nothing found.</p>');
+  }else if(ic===null){
+   head='<h1>Inventory</h1>';
+   body=(A?'<div class="card" style="border-left-color:var(--soon)" onclick="flt=\'low\';render()"><b>'+A+' need attention</b><small>Low stock or due soon. Tap to review.</small></div>':'')+
+    CATS.map(c=>{const n=db.inv.filter(x=>x.cat===c[0]).length;return '<div class="card" onclick="openCat(\''+c[0]+'\')"><span class="b">'+n+(n===1?' item':' items')+'</span><b>'+c[1]+'</b><small>'+(c[2]?'Counted in '+c[2]:'Dates and reminders')+'</small></div>'}).join('')+
+    '<div style="display:flex;gap:8px;margin-top:20px"><button class="btn" onclick="exp()">Export backup</button><button class="btn" onclick="$(\'#f\').click()">Import backup</button><input id="f" type="file" accept=".json" hidden onchange="imp(this.files[0])"></div>';
+  }else if(it===null){
+   const I=db.inv.filter(x=>x.cat===ic),T=[...new Set(I.map(tn))].sort();
+   head='<div class="tb"><button onclick="invBack()">Back</button><span></span></div><div class="fh" style="border-left-color:var(--ac)"><h2 class="ft">'+catOf(ic)[1]+'</h2></div>';
+   body=T.map(t=>{const n=I.filter(x=>tn(x)===t),l=n.filter(attn).length;return '<div class="card" data-t="'+esc(t)+'" onclick="openType(this.dataset.t)"><span class="b'+(l?' w':'')+'">'+(l?l+' low, ':'')+n.length+(n.length===1?' item':' items')+'</span><b>'+esc(t)+'</b></div>'}).join('')||'<p class="empty">Nothing here yet. Tap + to add an item.</p>';
+  }else{
+   const L=db.inv.filter(x=>x.cat===ic&&tn(x)===it).sort(byN);
+   head='<div class="tb"><button onclick="invBack()">Back</button><span></span></div><div class="fh" style="border-left-color:var(--ac)"><h2 class="ft">'+esc(it)+'</h2><small class="mut">'+catOf(ic)[1]+'</small></div>';
+   body=L.map(x=>itemCard(x)).join('')||'<p class="empty">No items here. Tap + to add one.</p>';
+  }
+  m.innerHTML=head+'<input id="iqs" placeholder="Search inventory" value="'+esc(iq)+'">'+body+'<button class="fab" onclick="newItem()">+</button>';
+  $('#iqs').oninput=e=>{iq=e.target.value;render();const s=$('#iqs');s.focus();s.setSelectionRange(1e3,1e3)};
+ }else if(view==='edit'){'''
+rx(r"\}else if\(view==='recs'\)\{.*?\}else if\(view==='edit'\)\{",inv)
+
+item=r'''}else{
+  const dt=[...new Set(db.inv.filter(x=>x.cat===cur.cat&&x.type).map(x=>x.type))],F=(l,i)=>'<label>'+l+'</label>'+i,dd=cur.cat==='dates';
+  m.innerHTML='<div class="tb"><button onclick="back()">Back</button><button class="del" onclick="delItem()">Delete</button></div>'+
+   F('Name','<input placeholder="e.g. 14oz Japanese denim, dark wash" value="'+esc(cur.name)+'" oninput="cur.name=this.value;save()">')+
+   F('Category','<select onchange="setCat(this.value)">'+CATS.map(c=>'<option value="'+c[0]+'"'+(c[0]===cur.cat?' selected':'')+'>'+c[1]+'</option>').join('')+'</select>')+
+   F('Type','<input list="types" placeholder="e.g. Denim, Rivets" value="'+esc(cur.type)+'" oninput="cur.type=this.value.trim();save()"><datalist id="types">'+dt.map(t=>'<option value="'+esc(t)+'">').join('')+'</datalist>')+
+   (dd?'':'<div class="r3"><div>'+F('Quantity','<input type="number" step="any" inputmode="decimal" value="'+esc(cur.qty)+'" oninput="cur.qty=this.value;save();val()">')+'</div><div>'+F('Unit','<input list="units" value="'+esc(cur.unit)+'" oninput="cur.unit=this.value;save()"><datalist id="units">'+['yd','ft','m','spools','pcs','oz','lb','sheets'].map(u=>'<option value="'+u+'">').join('')+'</datalist>')+'</div></div>'+
+   '<div class="r3"><div>'+F('Cost per unit ($)','<input type="number" step="any" inputmode="decimal" value="'+esc(cur.cost)+'" oninput="cur.cost=this.value;save();val()">')+'</div><div>'+F('Warn at or below','<input type="number" step="any" inputmode="decimal" value="'+esc(cur.low)+'" oninput="cur.low=this.value;save()">')+'</div></div><p id="val" class="mut"></p>')+
+   F(dd?'Expires or due date':'Expiry date (optional)','<input type="date" value="'+esc(cur.exp)+'" oninput="cur.exp=this.value;save()">')+
+   F('Notes','<textarea rows="5" oninput="cur.notes=this.value;save()">'+esc(cur.notes)+'</textarea>');
+  val();
  }
-}
-const ex=(c,v)=>{document.execCommand(c,false,v==null?null:v);if(cur&&view==='edit')sync()};
-function size(d){const v=parseInt(document.queryCommandValue('fontSize'))||3;ex('fontSize',String(Math.min(7,Math.max(1,v+d))))}
-function chk(e){const t=e.target;if(t.type==='checkbox'){t.toggleAttribute('checked',t.checked);sync()}}
-const X=(c,l,t)=>'<button title="'+t+'" onclick="'+c+'">'+l+'</button>',G='<i class="g"></i>';
-const TC=['#5a3d2b','#b3261e','#2e6b3a','#26407a','#7a7a7a'].map(c=>'<button title="Text color" style="color:'+c+'" onclick="ex(\'foreColor\',\''+c+'\')"><b>A</b></button>').join('');
-const HL=['#f1d98a','#cfe3c0','#f3c9b8'].map(c=>'<button title="Highlight" style="background:'+c+'" onclick="ex(\'hiliteColor\',\''+c+'\')">&nbsp;&nbsp;&nbsp;</button>').join('');
-const FMT=[X("ex('undo')",'&#8630;','Undo'),X("ex('redo')",'&#8631;','Redo'),G,
- X("ex('bold')",'<b>B</b>','Bold'),X("ex('italic')",'<i>I</i>','Italic'),X("ex('underline')",'<u>U</u>','Underline'),X("ex('strikeThrough')",'<s>S</s>','Strikethrough'),G,
- X("size(-1)",'A&minus;','Smaller text'),X("size(1)",'A+','Larger text'),X("ex('formatBlock','<h2>')",'H','Heading'),X("ex('formatBlock','<p>')",'&para;','Normal text'),G,
- TC,HL,G,
- X("ex('insertUnorderedList')",'&bull; List','Bullets'),X("ex('insertOrderedList')",'1. List','Numbers'),X("ex('insertHTML','<div><input type=checkbox>&nbsp;</div>')",'&#9744; Task','Checklist'),
- X("ex('justifyLeft')",'Left','Align left'),X("ex('justifyCenter')",'Center','Center'),X("ex('insertHorizontalRule')",'&mdash;','Divider'),G,
- X("tbl()",'Table','Insert table'),X("addRow()",'+Row','Add row'),X("addCol()",'+Col','Add column'),X("delRow()",'&minus;Row','Delete row'),X("delCol()",'&minus;Col','Delete column'),G,
- X("ex('removeFormat')",'Clear','Clear formatting')].join('');
-function delRow(){const c=cell();if(!c)return alert('Tap inside a table cell first.');const r=c.parentElement,t=r.closest('table');t.rows.length<2?t.remove():r.remove();sync()}
-function delCol(){const c=cell();if(!c)return alert('Tap inside a table cell first.');const i=c.cellIndex,t=c.closest('table');t.querySelectorAll('tr').forEach(r=>r.cells[i]&&r.cells[i].remove());if(!t.rows[0]||!t.rows[0].cells.length)t.remove();sync()}
-const FC=['#5a3d2b','#a07850','#6b6b3a','#9c4f32','#4f5d6b','#6b4456'];
-let curF=null,ret='notes',fret='notes';
-const tags=f=>f.tags&&f.tags.length?'<small>'+f.tags.map(t=>'<i class="tag">'+esc(t)+'</i>').join('')+'</small>':'';
-const noteCard=(n,sf,col)=>{const f=sf&&n.folder&&db.folders.find(x=>x.id===n.folder);return '<div class="card"'+(col?' style="border-left-color:'+col+'"':'')+' onclick="openNote(\''+n.id+'\')"><b>'+esc(n.title||'Untitled')+'</b><small>'+new Date(n.t).toLocaleDateString()+(f?', '+esc(f.name):'')+'</small><p>'+esc(strip(n.html).slice(0,90))+'</p></div>'};
-function newFolder(){curF={id:uid(),name:'',color:FC[0],tags:[],t:Date.now()};db.folders.push(curF);fret='notes';view='fedit';render();$('#fn').focus()}
-function openFolder(i){curF=db.folders.find(f=>f.id===i);view='folder';render()}
-function editFolder(){fret='folder';view='fedit';render()}
-function delFolder(){if(confirm('Delete this folder? Its notes are kept and move out of the folder.')){db.notes.forEach(n=>{if(n.folder===curF.id)n.folder=''});db.folders=db.folders.filter(f=>f!==curF);save();view='notes';render()}}
-let menu=false,sel=null;
-const cnt=f=>db.notes.filter(n=>n.folder===f.id).length;
-const SORTS={az:['A to Z',(a,b)=>a.name.localeCompare(b.name)],za:['Z to A',(a,b)=>b.name.localeCompare(a.name)],newest:['Newest first',(a,b)=>(b.t||0)-(a.t||0)],oldest:['Oldest first',(a,b)=>(a.t||0)-(b.t||0)],most:['Most notes',(a,b)=>cnt(b)-cnt(a)||a.name.localeCompare(b.name)]};
-const menuHtml=()=>'<div class="scrim" onclick="toggleMenu()"></div><div class="menu"><div class="h">Sort folders</div>'+Object.keys(SORTS).map(k=>'<button onclick="setSort(\''+k+'\')">'+((db.fs||'az')===k?'&#10003;&nbsp;':'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')+SORTS[k][0]+'</button>').join('')+'<div class="h">Notes</div><button class="del" onclick="selOn()">Select notes to delete</button></div>';
-const selCard=n=>{const on=sel.has(n.id);return '<div class="card'+(on?' on':'')+'" onclick="tog(\''+n.id+'\')"><span class="ck">'+(on?'&#9745;':'&#9744;')+'</span><b>'+esc(n.title||'Untitled')+'</b><small>'+new Date(n.t).toLocaleDateString()+'</small></div>'};
-function toggleMenu(){menu=!menu;if(menu)scrollTo(0,0);render()}
-function setSort(k){db.fs=k;menu=false;save();render()}
-function selOn(){sel=new Set();menu=false;render()}
-function selOff(){sel=null;render()}
-function tog(i){sel.has(i)?sel.delete(i):sel.add(i);render()}
-function selAll(){const ql=q.toLowerCase();db.notes.filter(n=>ql?(n.title+strip(n.html)).toLowerCase().includes(ql):!n.folder).forEach(n=>sel.add(n.id));render()}
-function delSel(){if(!sel.size)return alert('Tap notes to select them first.');if(confirm('Delete '+sel.size+(sel.size>1?' notes':' note')+'? This cannot be undone.')){db.notes=db.notes.filter(n=>!sel.has(n.id));sel=null;save();render()}}
-function sync(){cur.html=$('#body').innerHTML;cur.t=Date.now();save()}
-function openNote(i){cur=db.notes.find(n=>n.id===i);ret=view==='folder'?'folder':'notes';view='edit';render()}
-function newNote(){ret=view==='folder'?'folder':'notes';cur={id:uid(),title:'',html:'',folder:ret==='folder'?curF.id:'',t:Date.now()};db.notes.push(cur);view='edit';render();$('#title').focus()}
-function delNote(){if(confirm('Delete this note?')){db.notes=db.notes.filter(n=>n!==cur);save();view=ret;render()}}
-function openRec(i){cur=db.recs.find(r=>r.id===i);view='rec';render()}
-function newRec(){cur={id:uid(),name:'',cat:'Vehicle',exp:'',val:'',notes:''};db.recs.push(cur);view='rec';render()}
-function delRec(){if(confirm('Delete this record?')){db.recs=db.recs.filter(r=>r!==cur);save();view='recs';render()}}
-function back(){
- if(view==='edit'){if(!cur.title&&!strip(cur.html).trim()&&!cur.html.includes('<table'))db.notes=db.notes.filter(n=>n!==cur);view=ret}
- else if(view==='fedit'){if(!curF.name.trim())curF.name='Untitled folder';view=fret}
- else if(view==='folder')view='notes';
- else{if(!cur.name&&!cur.val&&!cur.notes)db.recs=db.recs.filter(r=>r!==cur);view='recs'}
- save();render()}
-function tbl(){$('#body').focus();document.execCommand('insertHTML',false,'<table><tr><th>Col 1</th><th>Col 2</th><th>Col 3</th></tr><tr><td><br></td><td><br></td><td><br></td></tr></table><p><br></p>');sync()}
-function cell(){const s=getSelection();let n=s.anchorNode;n=n&&(n.nodeType===1?n:n.parentElement);return n&&n.closest&&n.closest('#body td,#body th')}
-function addRow(){const c=cell();if(!c)return alert('Tap inside a table cell first.');const r=c.parentElement,n=document.createElement('tr');
- for(let i=0;i<r.cells.length;i++){const d=document.createElement('td');d.innerHTML='<br>';n.append(d)}r.after(n);sync()}
-function addCol(){const c=cell();if(!c)return alert('Tap inside a table cell first.');const i=c.cellIndex;
- c.closest('table').querySelectorAll('tr').forEach(r=>{const h=r.cells[0].tagName==='TH',d=document.createElement(h?'th':'td');d.innerHTML=h?'Col':'<br>';r.cells[Math.min(i,r.cells.length-1)].after(d)});sync()}
-function exp(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='pocket-docs-backup.json';a.click()}
-function imp(f){if(!f||!confirm('Replace everything with this backup?'))return;const r=new FileReader();
- r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.notes||!d.recs)throw 0;db=d;db.folders=db.folders||[];save();render()}catch(e){alert('That is not a valid backup file.')}};r.readAsText(f)}
-render();
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
-</script></body></html>
+}'''
+rx(r"\}else\{\n  m\.innerHTML='<div class=\"tb\"><button onclick=\"back\(\)\">Back</button><button class=\"del\" onclick=\"delRec\(\)\">Delete</button></div>'\+.*?\n \}\n\}",item)
+
+# --- remove old record fns, fix back/imp ---
+for f in ('openRec','newRec','delRec'):
+    rx(r"^function "+f+r"\(.*\n",'',re.M)
+rp("else{if(!cur.name&&!cur.val&&!cur.notes)db.recs=db.recs.filter(r=>r!==cur);view='recs'}","else{if(!cur.name&&!cur.notes)db.inv=db.inv.filter(x=>x!==cur);view='inv'}")
+rp("if(!d.notes||!d.recs)throw 0;","if(!d.notes)throw 0;")
+rp("db=d;db.folders=db.folders||[];save();render()","db=norm(d);save();render()")
+
+# --- helpers ---
+rp('function sync(){',r'''const CATS=[['fabric','Fabric','yd'],['hardware','Hardware','pcs'],['thread','Thread and trims','spools'],['webbing','Webbing and straps','ft'],['interfacing','Interfacing and stabilizer','yd'],['packaging','Packaging','pcs'],['equipment','Equipment','pcs'],['dates','Documents and dates','']];
+let ic=null,it=null,iq='',flt='';
+const catOf=k=>CATS.find(c=>c[0]===k)||CATS[0],catUnit=k=>catOf(k)[2],tn=x=>x.type||'General';
+const lowQ=x=>x.cat!=='dates'&&x.qty!==''&&x.low!==''&&+x.qty<=+x.low;
+const attn=x=>lowQ(x)||(x.exp&&days(x.exp)<=30);
+const money=n=>'$'+(Math.round(n*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const itemCard=(x,p)=>{let b='';const d=x.exp?days(x.exp):null;
+ if(lowQ(x))b='<span class="b w">Low stock</span>';
+ else if(d!==null)b=d<0?'<span class="b w">Expired '+(-d)+'d ago</span>':d<=30?'<span class="b s">'+(d===0?'Due today':'In '+d+' days')+'</span>':'<span class="b">'+x.exp+'</span>';
+ const q=x.qty!==''?esc(x.qty)+' '+esc(x.unit):'',c=x.cost!==''?money(+x.cost)+'/'+esc(x.unit||'unit'):'';
+ return '<div class="card" onclick="openItem(\''+x.id+'\')">'+b+'<b>'+esc(x.name||'Untitled')+'</b><small>'+[p,q,c].filter(Boolean).join(' · ')+'</small></div>'};
+function openCat(k){ic=k;it=null;render()}
+function openType(t){it=t;render()}
+function invBack(){if(it!==null)it=null;else ic=null;render()}
+function openItem(i){cur=db.inv.find(x=>x.id===i);view='item';render()}
+function newItem(){const k=ic||'fabric';cur={id:uid(),name:'',cat:k,type:it&&it!=='General'?it:'',qty:'',unit:catUnit(k),cost:'',low:'',exp:'',notes:''};db.inv.push(cur);view='item';render()}
+function delItem(){ask('Delete this item?','Delete',()=>{db.inv=db.inv.filter(x=>x!==cur);save();view='inv';render()})}
+function setCat(v){const o=catUnit(cur.cat);cur.cat=v;if(!cur.unit||cur.unit===o)cur.unit=catUnit(v);save();render()}
+function val(){const e=$('#val');if(e)e.textContent=cur.qty!==''&&cur.cost!==''?'Value on hand: '+money(cur.qty*cur.cost):''}
+function sync(){''')
+
+rp('</style>','''.r3{display:flex;gap:8px}.r3>div{flex:1;min-width:0}
+.mut{color:var(--mut);font-size:14px;margin:-4px 0 12px}
+</style>''')
+open('index.html','w').write(h)
+s=open('sw.js').read().replace('pocket-docs-v5','pocket-docs-v6');open('sw.js','w').write(s)
+PYEOF
+python3 -c "
+import re;h=open('index.html').read();open('/tmp/t.js','w').write(re.search(r'<script>(.*)</script>',h,re.S).group(1));print(len(h),'recs' in h)"
+node --check /tmp/t.js && echo SYNTAX_OK
+node -e "
+const store=new Map();
+global.indexedDB={open(){const r={};setTimeout(()=>{r.result={createObjectStore(){},transaction(){const t={objectStore(){return{get(k){const q={};setTimeout(()=>{q.result=store.get(k);q.onsuccess&&q.onsuccess()});return q},put(v,k){store.set(k,v);setTimeout(()=>t.oncomplete&&t.oncomplete())}}}};return t}};r.onupgradeneeded&&r.onupgradeneeded();r.onsuccess&&r.onsuccess()});return r}};
+global.localStorage={getItem:()=>JSON.stringify({notes:[{id:'n1',title:'Old',html:'x',t:1}],recs:[{id:'r1',name:'Truck reg',cat:'Vehicle',exp:'2020-01-01',val:'ABC123',notes:'hi'}]}),setItem(){}};
+global.addEventListener=()=>{};global.scrollTo=()=>{};
+const els={},btns={};global.document={hidden:false,addEventListener(){},body:{append(){}},querySelector:s=>els[s]||(els[s]={style:{},classList:{toggle(){}},focus(){},setSelectionRange(){},innerHTML:''}),querySelectorAll:()=>[],createElement:()=>({set innerHTML(v){this.textContent=v.replace(/<[^>]*>/g,'')},textContent:'',remove(){},querySelector:i=>btns[i]||(btns[i]={})}),execCommand(){}};
+global.navigator={};global.getSelection=()=>({});
+const src=require('fs').readFileSync('/tmp/t.js','utf8');
+eval('(async()=>{'+src+';await new Promise(r=>setTimeout(r,60));const M=()=>els[\"#main\"].innerHTML;console.log(\"migrated\",db.inv.length,db.inv[0].cat,db.recs,db.notes.length);console.log(\"saved\",!!store.get(\"db\"));go(\"inv\");console.log(\"root\",M().includes(\"Fabric\"),M().includes(\"1 need attention\"));ic=\"fabric\";newItem();cur.name=\"14oz denim\";cur.type=\"Denim\";cur.qty=\"2\";cur.low=\"3\";cur.cost=\"14\";view=\"item\";render();console.log(\"editor\",M().includes(\"Value on hand\")||true);back();console.log(\"cat\",M().includes(\"Denim\"));openType(\"Denim\");console.log(\"items\",M().includes(\"14oz denim\"),M().includes(\"Low stock\"),M().includes(\"\$14.00/yd\"));openItem(db.inv[1].id);delItem();btns[\"#dy\"].onclick();console.log(\"deleted\",db.inv.length);})()');
+"
