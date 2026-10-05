@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pocket Docs</title>
+<style>
+:root{--bg:#eef1f5;--fg:#1d2433;--mut:#6b7587;--card:#fff;--ac:#26407a;--st:#9fb0d0;--warn:#b3261e;--soon:#a15c00}
+@media(prefers-color-scheme:dark){:root{--bg:#10151f;--fg:#e6eaf2;--mut:#93a0b8;--card:#182030;--ac:#8fb0f0;--st:#3a4a6c;--warn:#ff8a80;--soon:#f5b955}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,sans-serif}
+body{padding:env(safe-area-inset-top) 12px calc(70px + env(safe-area-inset-bottom))}
+h1{font-size:22px;margin:14px 2px 10px}
+input,select,textarea{width:100%;font:inherit;color:inherit;background:var(--card);border:1px solid var(--st);border-radius:8px;padding:10px;margin:0 0 10px}
+label{font-size:13px;color:var(--mut)}
+.card{background:var(--card);border:1.5px dashed var(--st);border-radius:10px;padding:12px;margin-bottom:10px}
+.card small,.card p{display:block;color:var(--mut);margin:2px 0 0;font-size:14px}
+.card b{display:block}
+.b{float:right;font-size:13px;color:var(--mut)}.w{color:var(--warn);font-weight:700}.s{color:var(--soon);font-weight:700}
+.empty{color:var(--mut);text-align:center;margin-top:40px}
+.fab{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;border:0;background:var(--ac);color:var(--bg);font-size:30px}
+#tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--st);padding-bottom:env(safe-area-inset-bottom)}
+#tabs button{flex:1;padding:16px;border:0;background:none;color:var(--mut);font:inherit;font-weight:600}
+#tabs button.on{color:var(--ac);box-shadow:inset 0 3px 0 var(--ac)}
+.tb{display:flex;gap:6px;overflow-x:auto;position:sticky;top:0;background:var(--bg);padding:8px 0}
+.tb button,.btn{flex:none;min-width:44px;padding:10px 12px;border:1px solid var(--st);border-radius:8px;background:var(--card);color:var(--fg);font:inherit}
+.btn.del{color:var(--warn)}
+#title{font-size:20px;font-weight:700}
+#body{min-height:50vh;background:var(--card);border:1px solid var(--st);border-radius:8px;padding:12px;outline:0}
+#body table{border-collapse:collapse;width:100%;table-layout:fixed;margin:8px 0}
+#body td,#body th{border:1px solid var(--st);padding:6px;word-break:break-word;vertical-align:top}
+#body th{background:var(--bg);text-align:left}
+</style></head><body>
+<div id="main"></div>
+<div id="tabs"><button data-v="notes" onclick="go('notes')">Notes</button><button data-v="recs" onclick="go('recs')">Records</button></div>
+<script>
+const $=s=>document.querySelector(s);
+let db={notes:[],recs:[]},view='notes',cur=null,q='';
+try{db=JSON.parse(localStorage.getItem('pd1'))||db}catch(e){}
+const save=()=>{try{localStorage.setItem('pd1',JSON.stringify(db))}catch(e){alert('Could not save. Storage may be full.')}};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const strip=h=>{const d=document.createElement('div');d.innerHTML=h;return d.textContent};
+const days=d=>d?Math.round((new Date(d+'T00:00')-new Date().setHours(0,0,0,0))/864e5):null;
+const go=v=>{view=v;render()};
+function render(){
+ const m=$('#main'),list=view==='notes'||view==='recs';
+ $('#tabs').style.display=list?'flex':'none';
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+ if(view==='notes'){
+  const L=db.notes.filter(n=>(n.title+strip(n.html)).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>b.t-a.t);
+  m.innerHTML='<h1>Notes</h1><input id="s" placeholder="Search notes" value="'+esc(q)+'">'+
+   (L.map(n=>'<div class="card" onclick="openNote(\''+n.id+'\')"><b>'+esc(n.title||'Untitled')+'</b><small>'+new Date(n.t).toLocaleDateString()+'</small><p>'+esc(strip(n.html).slice(0,90))+'</p></div>').join('')||'<p class="empty">No notes yet. Tap + to write one.</p>')+
+   '<button class="fab" onclick="newNote()">+</button>';
+  $('#s').oninput=e=>{q=e.target.value;render();const s=$('#s');s.focus();s.setSelectionRange(1e3,1e3)};
+ }else if(view==='recs'){
+  const L=db.recs.slice().sort((a,b)=>(a.exp||'9')>(b.exp||'9')?1:-1);
+  m.innerHTML='<h1>Records</h1>'+(L.map(r=>{const d=days(r.exp);
+   const b=d===null?'':d<0?'<span class="b w">Expired '+(-d)+'d ago</span>':d<=30?'<span class="b s">'+(d===0?'Expires today':'In '+d+' days')+'</span>':'<span class="b">'+r.exp+'</span>';
+   return '<div class="card" onclick="openRec(\''+r.id+'\')">'+b+'<b>'+esc(r.name||'Untitled')+'</b><small>'+esc(r.cat)+(r.val?', '+esc(r.val):'')+'</small></div>'}).join('')||'<p class="empty">Nothing saved yet. Tap + to add a car, asset, or document.</p>')+
+   '<div style="display:flex;gap:8px;margin-top:20px"><button class="btn" onclick="exp()">Export backup</button><button class="btn" onclick="$(\'#f\').click()">Import backup</button><input id="f" type="file" accept=".json" hidden onchange="imp(this.files[0])"></div><button class="fab" onclick="newRec()">+</button>';
+ }else if(view==='edit'){
+  m.innerHTML='<div class="tb" onmousedown="event.preventDefault()"><button onclick="back()">Back</button><button onclick="document.execCommand(\'bold\')"><b>B</b></button><button onclick="document.execCommand(\'italic\')"><i>I</i></button><button onclick="document.execCommand(\'insertUnorderedList\')">List</button><button onclick="tbl()">Table</button><button onclick="addRow()">+Row</button><button onclick="addCol()">+Col</button><button class="del" onclick="delNote()">Delete</button></div>'+
+   '<input id="title" placeholder="Title" value="'+esc(cur.title)+'" oninput="cur.title=this.value;sync()"><div id="body" contenteditable="true" oninput="sync()">'+cur.html+'</div>';
+ }else{
+  m.innerHTML='<div class="tb"><button onclick="back()">Back</button><button class="del" onclick="delRec()">Delete</button></div>'+
+   '<label>Name</label><input value="'+esc(cur.name)+'" oninput="cur.name=this.value;save()">'+
+   '<label>Type</label><select onchange="cur.cat=this.value;save()">'+['Vehicle','Asset','Document','Other'].map(c=>'<option'+(c===cur.cat?' selected':'')+'>'+c+'</option>').join('')+'</select>'+
+   '<label>Expires or due date</label><input type="date" value="'+esc(cur.exp)+'" oninput="cur.exp=this.value;save()">'+
+   '<label>Value or number (plate, serial, amount)</label><input value="'+esc(cur.val)+'" oninput="cur.val=this.value;save()">'+
+   '<label>Details</label><textarea rows="6" oninput="cur.notes=this.value;save()">'+esc(cur.notes)+'</textarea>';
+ }
+}
+function sync(){cur.html=$('#body').innerHTML;cur.t=Date.now();save()}
+function openNote(i){cur=db.notes.find(n=>n.id===i);view='edit';render()}
+function newNote(){cur={id:uid(),title:'',html:'',t:Date.now()};db.notes.push(cur);view='edit';render();$('#title').focus()}
+function delNote(){if(confirm('Delete this note?')){db.notes=db.notes.filter(n=>n!==cur);save();view='notes';render()}}
+function openRec(i){cur=db.recs.find(r=>r.id===i);view='rec';render()}
+function newRec(){cur={id:uid(),name:'',cat:'Vehicle',exp:'',val:'',notes:''};db.recs.push(cur);view='rec';render()}
+function delRec(){if(confirm('Delete this record?')){db.recs=db.recs.filter(r=>r!==cur);save();view='recs';render()}}
+function back(){
+ if(view==='edit'){if(!cur.title&&!strip(cur.html).trim()&&!cur.html.includes('<table'))db.notes=db.notes.filter(n=>n!==cur);view='notes'}
+ else{if(!cur.name&&!cur.val&&!cur.notes)db.recs=db.recs.filter(r=>r!==cur);view='recs'}
+ save();render()}
+function tbl(){$('#body').focus();document.execCommand('insertHTML',false,'<table><tr><th>Col 1</th><th>Col 2</th><th>Col 3</th></tr><tr><td><br></td><td><br></td><td><br></td></tr></table><p><br></p>');sync()}
+function cell(){const s=getSelection();let n=s.anchorNode;n=n&&(n.nodeType===1?n:n.parentElement);return n&&n.closest&&n.closest('#body td,#body th')}
+function addRow(){const c=cell();if(!c)return alert('Tap inside a table cell first.');const r=c.parentElement,n=document.createElement('tr');
+ for(let i=0;i<r.cells.length;i++){const d=document.createElement('td');d.innerHTML='<br>';n.append(d)}r.after(n);sync()}
+function addCol(){const c=cell();if(!c)return alert('Tap inside a table cell first.');const i=c.cellIndex;
+ c.closest('table').querySelectorAll('tr').forEach(r=>{const h=r.cells[0].tagName==='TH',d=document.createElement(h?'th':'td');d.innerHTML=h?'Col':'<br>';r.cells[Math.min(i,r.cells.length-1)].after(d)});sync()}
+function exp(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='pocket-docs-backup.json';a.click()}
+function imp(f){if(!f||!confirm('Replace everything with this backup?'))return;const r=new FileReader();
+ r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.notes||!d.recs)throw 0;db=d;save();render()}catch(e){alert('That is not a valid backup file.')}};r.readAsText(f)}
+render();
+</script></body></html>
