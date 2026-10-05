@@ -91,4 +91,3 @@ function imp(f){if(!f||!confirm('Replace everything with this backup?'))return;c
  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.notes||!d.recs)throw 0;db=d;save();render()}catch(e){alert('That is not a valid backup file.')}};r.readAsText(f)}
 render();
 </script></body></html>
-
